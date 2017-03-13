@@ -93,15 +93,11 @@ partoolMemoryCopyAlignedThread              PROC PUBLIC
     shl                     rcx,                    6
     
     ; Perform the memory-copy operation.
-    vmovdqa                 ymm0,                   YMMWORD PTR [r11+rcx]
-    vmovdqa                 ymm1,                   YMMWORD PTR [r11+rcx+32]
-    vmovdqa                 YMMWORD PTR [r12+rcx],                           ymm0
-    vmovdqa                 YMMWORD PTR [r12+rcx+32],                        ymm1
-    
+    ; Since there is no locality at all, use non-temporal hints.
     vmovntdqa               ymm0,                   YMMWORD PTR [r11+rcx]
     vmovntdqa               ymm1,                   YMMWORD PTR [r11+rcx+32]
-    ;vmovntdq                YMMWORD PTR [r12+rcx],                          ymm0
-    ;vmovntdq                YMMWORD PTR [r12+rcx+32],                       ymm1
+    vmovntdq                YMMWORD PTR [r12+rcx],                          ymm0
+    vmovntdq                YMMWORD PTR [r12+rcx+32],                       ymm1
     
     inc                     rsi
     jmp                     partoolMemoryCopyAlignedThreadLoop
