@@ -6,11 +6,11 @@
  * Department of Electrical Engineering, Stanford University
  * Copyright (c) 2016-2017
  *************************************************************************//**
- * @file memorycopy.c
- *   Implementation of `paratoolMemoryCopy()`.
+ * @file memory.c
+ *   Implementation of memory operations.
  *****************************************************************************/
 
-#include "memorycopy.h"
+#include "memory.h"
 
 #include <spindle.h>
 #include <stdint.h>

@@ -12,18 +12,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\paratool.h" />
-    <ClInclude Include="include\paratool\memorycopy.h" />
+    <ClInclude Include="include\paratool\memory.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\paratool\registers.inc" />
     <None Include="include\paratool\spindle.inc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\memorycopy.c" />
+    <ClCompile Include="source\memory.c" />
     <ClCompile Include="source\version.c" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="source\memorycopy.asm" />
+    <MASM Include="source\memory.asm" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{04148694-9D3A-4902-A609-686056684060}</ProjectGuid>

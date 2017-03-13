@@ -6,8 +6,8 @@
 ; Department of Electrical Engineering, Stanford University
 ; Copyright (c) 2016-2017
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; memorycopy.asm
-;   Implementation of internal thread barrier functionality.
+; memory.asm
+;   Implementation of internal memory operation functionality.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 INCLUDE registers.inc

@@ -6,8 +6,8 @@
  * Department of Electrical Engineering, Stanford University
  * Copyright (c) 2016-2017
  *************************************************************************//**
- * @file memorycopy.h
- *   Declaration of internal memory copying functions.
+ * @file memory.h
+ *   Declaration of internal memory operation functionality.
  *   Not intended for external use.
  *****************************************************************************/
 
