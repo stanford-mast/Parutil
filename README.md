@@ -22,6 +22,10 @@ To build and link with Paratool, the following are required.
   
   Spindle provides the multi-threading support that Paratool uses internally.
 
+- [**Silo**](https://github.com/stanford-mast/Silo) and its dependencies
+  
+  Silo provides NUMA awareness functionality that Paratool uses internally.
+
 
 # Building
 
@@ -38,7 +42,7 @@ Projects that make use of Paratool should include the top-level paratool.h heade
 
 Assuming a Linux-based C-language project that uses Paratool and consists of a single source file called "main.c", the following command would build and link with Paratool.
 
-    gcc main.c -mno-vzeroupper -pthread -lparatool -lspindle -ltopo -lhwloc -lnuma -lpciaccess -lxml2
+    gcc main.c -mno-vzeroupper -pthread -lparatool -lsilo -lspindle -ltopo -lhwloc -lnuma -lpciaccess -lxml2
 
 
 # Getting Started

@@ -19,39 +19,39 @@
 
 // -------- CONSTANTS ------------------------------------------------------ //
 
-/// Minimum size of a memory copy operation, in bytes, before Partool will parallelize it.
-static const size_t kPartoolMinimumCopySize = 1024ull * 1024ull * 1024ull;
+/// Minimum size of a memory copy operation, in bytes, before Paratool will parallelize it.
+static const size_t kParatoolMinimumCopySize = 1024ull * 1024ull * 1024ull;
 
 
 // -------- TYPE DEFINITIONS ----------------------------------------------- //
 
 /// Contains all information needed to define an internal memory copy operation.
-typedef struct SPartoolMemoryCopySpec
+typedef struct SParatoolMemoryCopySpec
 {
     void* destination;                                                      ///< Base address of the destination memory buffer.
     const void* source;                                                     ///< Base address of the source memory buffer.
     size_t num64;                                                           ///< Number of 64-byte blocks (cache lines) to copy.
-} SPartoolMemoryCopySpec;
+} SParatoolMemoryCopySpec;
 
 
 // -------- INTERNAL FUNCTIONS --------------------------------------------- //
 
 /// Internal control function for memory copy operations.
-/// @param [in] arg Pointer to the #SPartoolMemoryCopySpec structure that contains information about the overall memory copy operation to be parallelized.
-static void partoolMemoryCopyInternalThread(void* arg)
+/// @param [in] arg Pointer to the #SParatoolMemoryCopySpec structure that contains information about the overall memory copy operation to be parallelized.
+static void paratoolMemoryCopyInternalThread(void* arg)
 {
-    SPartoolMemoryCopySpec* memoryCopySpec = (SPartoolMemoryCopySpec*)arg;
+    SParatoolMemoryCopySpec* memoryCopySpec = (SParatoolMemoryCopySpec*)arg;
 
     if (((size_t)memoryCopySpec->destination & (size_t)31) || ((size_t)memoryCopySpec->source & (size_t)31))
     {
         // Either the source or destination address is not aligned on a 256-bit (32-byte) boundary, so the unaligned copy implementation must be used.
-        partoolMemoryCopyUnalignedThread(memoryCopySpec->destination, memoryCopySpec->source, memoryCopySpec->num64);
+        paratoolMemoryCopyUnalignedThread(memoryCopySpec->destination, memoryCopySpec->source, memoryCopySpec->num64);
     }
     else
     {
         // Both source and destination addresses are aligned on a 256-bit (32-byte) boundary, so the aligned copy implementation can be used.
         // This is preferable, as it will result in higher performance.
-        partoolMemoryCopyAlignedThread(memoryCopySpec->destination, memoryCopySpec->source, memoryCopySpec->num64);
+        paratoolMemoryCopyAlignedThread(memoryCopySpec->destination, memoryCopySpec->source, memoryCopySpec->num64);
     }
 }
 
@@ -61,7 +61,7 @@ static void partoolMemoryCopyInternalThread(void* arg)
 
 void* paratoolMemoryCopy(void* destination, const void* source, size_t num)
 {
-    if (num < (kPartoolMinimumCopySize))
+    if (num < (kParatoolMinimumCopySize))
     {
         // For small enough buffers, it is not worth the overhead of setting up threads to parallelize.
         // If operating inside a Spindle parallelized region, it is also not possible to create another one.
@@ -69,13 +69,13 @@ void* paratoolMemoryCopy(void* destination, const void* source, size_t num)
     }
     else
     {
-        SPartoolMemoryCopySpec memoryCopySpec;
+        SParatoolMemoryCopySpec memoryCopySpec;
         SSpindleTaskSpec taskSpec;
         size_t numUnalignedBytes;
         
         // Set up control information for Spindle.
-        // Once Spindle supports returning the NUMA node for a buffer, use that information for better NUMA awareness here.
-        taskSpec.func = &partoolMemoryCopyInternalThread;
+        // Once Silo supports returning the NUMA node for a buffer, use that information for better NUMA awareness here.
+        taskSpec.func = &paratoolMemoryCopyInternalThread;
         taskSpec.arg = (void*)&memoryCopySpec;
         taskSpec.numaNode = 0;
         taskSpec.numThreads = 0;

@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Partaool
+; Paratool
 ;   Multi-platform library of parallelized utility functions.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Authored by Samuel Grossman
@@ -19,7 +19,7 @@ _TEXT                                       SEGMENT
 
 ; --------- MACROS ------------------------------------------------------------
 
-partoolMemoryCopyInitializeThread           MACRO
+paratoolMemoryCopyInitializeThread          MACRO
     ; Extract thread information useful as loop controls, assigning chunks to each thread round-robin.
     ; Number of iterations is equal to the number of 64-byte blocks, passed in as r_param3 and held in r13.
     ; Formulas:
@@ -65,7 +65,7 @@ ENDM
 ; --------- FUNCTIONS ---------------------------------------------------------
 ; See "memorycopy.h" for documentation.
 
-partoolMemoryCopyAlignedThread              PROC PUBLIC
+paratoolMemoryCopyAlignedThread             PROC PUBLIC
     ; Save non-volatile registers.
     push                    rbx
     push                    rsi
@@ -80,12 +80,12 @@ partoolMemoryCopyAlignedThread              PROC PUBLIC
     mov                     r13,                    r_param3
     
     ; Initialize.
-    partoolMemoryCopyInitializeThread
+    paratoolMemoryCopyInitializeThread
     
     ; Perform the memory copy operation assigned to this thread.
-  partoolMemoryCopyAlignedThreadLoop:
+  paratoolMemoryCopyAlignedThreadLoop:
     cmp                     rsi,                    rdi
-    jge                     partoolMemoryCopyAlignedThreadDone
+    jge                     paratoolMemoryCopyAlignedThreadDone
     
     ; Compute the byte offset of the 64-byte block.
     ; This is equal to the iteration index multiplied by 64, or left-shifted by 6.
@@ -100,8 +100,8 @@ partoolMemoryCopyAlignedThread              PROC PUBLIC
     vmovntdq                YMMWORD PTR [r12+rcx+32],                       ymm1
     
     inc                     rsi
-    jmp                     partoolMemoryCopyAlignedThreadLoop
-  partoolMemoryCopyAlignedThreadDone:
+    jmp                     paratoolMemoryCopyAlignedThreadLoop
+  paratoolMemoryCopyAlignedThreadDone:
     
     ; Restore non-volatile registers and return.
     pop                     r13
@@ -112,11 +112,11 @@ partoolMemoryCopyAlignedThread              PROC PUBLIC
     pop                     rbx
 
     ret
-partoolMemoryCopyAlignedThread              ENDP
+paratoolMemoryCopyAlignedThread             ENDP
 
 ; ---------
 
-partoolMemoryCopyUnalignedThread            PROC PUBLIC
+paratoolMemoryCopyUnalignedThread           PROC PUBLIC
     ; Save non-volatile registers.
     push                    rbx
     push                    rsi
@@ -131,12 +131,12 @@ partoolMemoryCopyUnalignedThread            PROC PUBLIC
     mov                     r13,                    r_param3
     
     ; Initialize.
-    partoolMemoryCopyInitializeThread
+    paratoolMemoryCopyInitializeThread
     
     ; Perform the memory copy operation assigned to this thread.
-  partoolMemoryCopyUnalignedThreadLoop:
+  paratoolMemoryCopyUnalignedThreadLoop:
     cmp                     rsi,                    rdi
-    jge                     partoolMemoryCopyUnalignedThreadDone
+    jge                     paratoolMemoryCopyUnalignedThreadDone
     
     ; Compute the byte offset of the 64-byte block.
     ; This is equal to the iteration index multiplied by 64, or left-shifted by 6.
@@ -150,8 +150,8 @@ partoolMemoryCopyUnalignedThread            PROC PUBLIC
     vmovdqu                 YMMWORD PTR [r12+rcx+32],                       ymm1
     
     inc                     rsi
-    jmp                     partoolMemoryCopyUnalignedThreadLoop
-  partoolMemoryCopyUnalignedThreadDone:
+    jmp                     paratoolMemoryCopyUnalignedThreadLoop
+  paratoolMemoryCopyUnalignedThreadDone:
     
     ; Restore non-volatile registers and return.
     pop                     r13
@@ -162,7 +162,7 @@ partoolMemoryCopyUnalignedThread            PROC PUBLIC
     pop                     rbx
 
     ret
-partoolMemoryCopyUnalignedThread            ENDP
+paratoolMemoryCopyUnalignedThread           ENDP
 
 
 _TEXT                                       ENDS

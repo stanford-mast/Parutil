@@ -24,7 +24,7 @@
 /// @param [in] destination Target memory buffer.
 /// @param [in] source Source memory buffer.
 /// @param [in] num64 Number of 64-byte blocks to copy.
-void partoolMemoryCopyAlignedThread(void* destination, const void* source, size_t num64);
+void paratoolMemoryCopyAlignedThread(void* destination, const void* source, size_t num64);
 
 /// Copies `num64` 64-byte blocks of memory from `destination` to `source`.
 /// No assumptions are made as to their alignment.
@@ -33,4 +33,4 @@ void partoolMemoryCopyAlignedThread(void* destination, const void* source, size_
 /// @param [in] destination Target memory buffer.
 /// @param [in] source Source memory buffer.
 /// @param [in] num64 Number of 64-byte blocks to copy.
-void partoolMemoryCopyUnalignedThread(void* destination, const void* source, size_t num64);
+void paratoolMemoryCopyUnalignedThread(void* destination, const void* source, size_t num64);
