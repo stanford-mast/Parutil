@@ -125,6 +125,9 @@ paratoolMemoryCopyUnalignedThread           PROC PUBLIC
     push                    r12
     push                    r13
     
+    ; To translate from 64-byte blocks to 8-byte blocks, multiply the number of blocks by 8.
+    shl                     r_param3,               3
+    
     ; Set aside the original parameters.
     mov                     r11,                    r_param1
     mov                     r12,                    r_param2
@@ -138,16 +141,14 @@ paratoolMemoryCopyUnalignedThread           PROC PUBLIC
     cmp                     rsi,                    rdi
     jge                     paratoolMemoryCopyUnalignedThreadDone
     
-    ; Compute the byte offset of the 64-byte block.
-    ; This is equal to the iteration index multiplied by 64, or left-shifted by 6.
+    ; Compute the byte offset of the 8-byte block.
+    ; This is equal to the iteration index multiplied by 8, or left-shifted by 3.
     mov                     rcx,                    rsi
-    shl                     rcx,                    6
+    shl                     rcx,                    3
     
-    ; Perform the memory-copy operation.
-    vmovdqu                 ymm0,                   YMMWORD PTR [r11+rcx]
-    vmovdqu                 ymm1,                   YMMWORD PTR [r11+rcx+32]
-    vmovdqu                 YMMWORD PTR [r12+rcx],                          ymm0
-    vmovdqu                 YMMWORD PTR [r12+rcx+32],                       ymm1
+    ; Perform the memory-copy operation, one 64-bit integer at a time.
+    mov                     rax,                    QWORD PTR [r11+rcx]
+    movnti                  QWORD PTR [r12+rcx],    rax
     
     inc                     rsi
     jmp                     paratoolMemoryCopyUnalignedThreadLoop

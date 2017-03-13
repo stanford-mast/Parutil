@@ -84,9 +84,9 @@ void* paratoolMemoryCopy(void* destination, const void* source, size_t num)
         // Try to steer the implementation towards 64-byte alignment.
         // The underlying memory copy implementation uses 256-bit (32-byte) AVX instructions in groups of 2, for an effective block size of 512 bits (64 bytes).
         // If source and destination pointers have similar cache-line alignment and are both off-alignment, correct for that here.
-        numUnalignedBytes = (((size_t)destination) & 63);
+        numUnalignedBytes = 64 - (((size_t)destination) & 63);
         
-        if ((0 != numUnalignedBytes) && ((((size_t)source) & 63) == numUnalignedBytes))
+        if ((0 != numUnalignedBytes) && (64 - ((((size_t)source) & 63)) == numUnalignedBytes))
         {
             for (size_t i = 0; i < numUnalignedBytes; ++i)
                 ((uint8_t*)destination)[i] = ((uint8_t*)source)[i];
@@ -98,7 +98,7 @@ void* paratoolMemoryCopy(void* destination, const void* source, size_t num)
         
         // Ensure the actual parallelized implementation is invoked with a multiple of 64 blocks, and perform any needed tail-end correction here.
         // Corrections are done at the tail end to ensure preservation of array base address alignment.
-        numUnalignedBytes = (num & (size_t)63);
+        numUnalignedBytes = (num & 63);
 
         for (size_t i = 0; i < numUnalignedBytes; ++i)
             ((uint8_t*)destination)[num - i - 1] = ((uint8_t*)source)[num - i - 1];
@@ -106,7 +106,7 @@ void* paratoolMemoryCopy(void* destination, const void* source, size_t num)
         // Set up control information for the memory copy operation.
         memoryCopySpec.destination = destination;
         memoryCopySpec.source = source;
-        memoryCopySpec.num64 = num >> (size_t)6;
+        memoryCopySpec.num64 = num >> 6;
 
         // Dispatch the memory copy operation.
         spindleThreadsSpawn(&taskSpec, 1, false);
