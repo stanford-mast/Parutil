@@ -109,7 +109,7 @@ void* paratoolMemoryCopy(void* destination, const void* source, size_t num)
         memoryCopySpec.num64 = num >> (size_t)6;
 
         // Dispatch the memory copy operation.
-        spindleThreadsSpawn(&taskSpec, 1, true);
+        spindleThreadsSpawn(&taskSpec, 1, false);
 
         return destination;
     }
