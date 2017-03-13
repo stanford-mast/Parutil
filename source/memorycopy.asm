@@ -1,0 +1,175 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Partaool
+;   Multi-platform library of parallelized utility functions.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Authored by Samuel Grossman
+; Department of Electrical Engineering, Stanford University
+; Copyright (c) 2016-2017
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; memorycopy.asm
+;   Implementation of internal thread barrier functionality.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+INCLUDE registers.inc
+INCLUDE spindle.inc
+
+
+_TEXT                                       SEGMENT
+
+
+; --------- MACROS ------------------------------------------------------------
+
+partoolMemoryCopyInitializeThread           MACRO
+    ; Extract thread information useful as loop controls, assigning chunks to each thread round-robin.
+    ; Number of iterations is equal to the number of 64-byte blocks, passed in as r_param3 and held in r13.
+    ; Formulas:
+    ;    assignment  = #iterations / #total_threads
+    ;    addon       = #iterations % #total_threads < global_thread_id ? 1 : 0
+    ;    prev_addons = min(#iterations % #total_threads, global_thread_id)
+    ;
+    ;    base (rsi)  = (assignment * global_thread_id) + prev_addons
+    ;    inc         = 1
+    ;    max  (rdi)  = base + assignment + addon - 1
+    
+    ; First, perform the unsigned division by setting rdx:rax = #iterations and dividing by #total_threads.
+    ; Afterwards, rax contains the quotient ("assignment" in the formulas above) and rdx contains the remainder.
+    mov                     rax,                    r13
+    xor                     rdx,                    rdx
+    xor                     rcx,                    rcx
+    spindleAsmHelperGetLocalThreadCount             ecx
+    div                     rcx
+    
+    ; To calculate other values using total_threads, extract it to rcx.
+    ; This can be used directly to obtain "addon" (rbx) and "prev_addons" (rsi).
+    spindleAsmHelperGetLocalThreadID                ecx
+    xor                     rbx,                    rbx
+    mov                     rsi,                    rdx
+    mov                     rdi,                    0000000000000001h
+    cmp                     rcx,                    rdx
+    cmovl                   rbx,                    rdi
+    cmovl                   rsi,                    rcx
+    
+    ; Create some partial values using the calculated quantities.
+    ;    rsi (base) = prev_addons - this was done above, rdi (max) = assignment + addon - 1.
+    ; Note that because we are using "jge" below and not "jg", we skip the -1, since "jge" requires that rdi be (last index to process + 1).
+    mov                     rdi,                    rax
+    add                     rdi,                    rbx
+    
+    ; Perform multiplication of assignment * total_threads, result in rax.
+    ; Use the result to add to rsi and figure out "base", then add to rdi to get "max".
+    mul                     rcx
+    add                     rsi,                    rax
+    add                     rdi,                    rsi
+ENDM
+
+; --------- FUNCTIONS ---------------------------------------------------------
+; See "memorycopy.h" for documentation.
+
+partoolMemoryCopyAlignedThread              PROC PUBLIC
+    ; Save non-volatile registers.
+    push                    rbx
+    push                    rsi
+    push                    rdi
+    push                    r11
+    push                    r12
+    push                    r13
+    
+    ; Set aside the original parameters.
+    mov                     r11,                    r_param1
+    mov                     r12,                    r_param2
+    mov                     r13,                    r_param3
+    
+    ; Initialize.
+    partoolMemoryCopyInitializeThread
+    
+    ; Perform the memory copy operation assigned to this thread.
+  partoolMemoryCopyAlignedThreadLoop:
+    cmp                     rsi,                    rdi
+    jge                     partoolMemoryCopyAlignedThreadDone
+    
+    ; Compute the byte offset of the 64-byte block.
+    ; This is equal to the iteration index multiplied by 64, or left-shifted by 6.
+    mov                     rcx,                    rsi
+    shl                     rcx,                    6
+    
+    ; Perform the memory-copy operation.
+    vmovdqa                 ymm0,                   YMMWORD PTR [r11+rcx]
+    vmovdqa                 ymm1,                   YMMWORD PTR [r11+rcx+32]
+    vmovdqa                 YMMWORD PTR [r12+rcx],                           ymm0
+    vmovdqa                 YMMWORD PTR [r12+rcx+32],                        ymm1
+    
+    vmovntdqa               ymm0,                   YMMWORD PTR [r11+rcx]
+    vmovntdqa               ymm1,                   YMMWORD PTR [r11+rcx+32]
+    ;vmovntdq                YMMWORD PTR [r12+rcx],                          ymm0
+    ;vmovntdq                YMMWORD PTR [r12+rcx+32],                       ymm1
+    
+    inc                     rsi
+    jmp                     partoolMemoryCopyAlignedThreadLoop
+  partoolMemoryCopyAlignedThreadDone:
+    
+    ; Restore non-volatile registers and return.
+    pop                     r13
+    pop                     r12
+    pop                     r11
+    pop                     rdi
+    pop                     rsi
+    pop                     rbx
+
+    ret
+partoolMemoryCopyAlignedThread              ENDP
+
+; ---------
+
+partoolMemoryCopyUnalignedThread            PROC PUBLIC
+    ; Save non-volatile registers.
+    push                    rbx
+    push                    rsi
+    push                    rdi
+    push                    r11
+    push                    r12
+    push                    r13
+    
+    ; Set aside the original parameters.
+    mov                     r11,                    r_param1
+    mov                     r12,                    r_param2
+    mov                     r13,                    r_param3
+    
+    ; Initialize.
+    partoolMemoryCopyInitializeThread
+    
+    ; Perform the memory copy operation assigned to this thread.
+  partoolMemoryCopyUnalignedThreadLoop:
+    cmp                     rsi,                    rdi
+    jge                     partoolMemoryCopyUnalignedThreadDone
+    
+    ; Compute the byte offset of the 64-byte block.
+    ; This is equal to the iteration index multiplied by 64, or left-shifted by 6.
+    mov                     rcx,                    rsi
+    shl                     rcx,                    6
+    
+    ; Perform the memory-copy operation.
+    vmovdqu                 ymm0,                   YMMWORD PTR [r11+rcx]
+    vmovdqu                 ymm1,                   YMMWORD PTR [r11+rcx+32]
+    vmovdqu                 YMMWORD PTR [r12+rcx],                          ymm0
+    vmovdqu                 YMMWORD PTR [r12+rcx+32],                       ymm1
+    
+    inc                     rsi
+    jmp                     partoolMemoryCopyUnalignedThreadLoop
+  partoolMemoryCopyUnalignedThreadDone:
+    
+    ; Restore non-volatile registers and return.
+    pop                     r13
+    pop                     r12
+    pop                     r11
+    pop                     rdi
+    pop                     rsi
+    pop                     rbx
+
+    ret
+partoolMemoryCopyUnalignedThread            ENDP
+
+
+_TEXT                                       ENDS
+
+
+END
