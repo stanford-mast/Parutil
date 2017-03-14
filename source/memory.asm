@@ -19,7 +19,7 @@ _TEXT                                       SEGMENT
 
 ; --------- MACROS ------------------------------------------------------------
 
-paratoolMemoryCopyInitializeThread          MACRO
+paratoolMemoryOpInitializeThread            MACRO
     ; Extract thread information useful as loop controls, assigning chunks to each thread round-robin.
     ; Number of iterations is equal to the number of 64-byte blocks, passed in as r_param3 and held in r13.
     ; Formulas:
@@ -80,7 +80,7 @@ paratoolMemoryCopyAlignedThread             PROC PUBLIC
     mov                     r13,                    r_param3
     
     ; Initialize.
-    paratoolMemoryCopyInitializeThread
+    paratoolMemoryOpInitializeThread
     
     ; Perform the memory copy operation assigned to this thread.
   paratoolMemoryCopyAlignedThreadLoop:
@@ -134,7 +134,7 @@ paratoolMemoryCopyUnalignedThread           PROC PUBLIC
     mov                     r13,                    r_param3
     
     ; Initialize.
-    paratoolMemoryCopyInitializeThread
+    paratoolMemoryOpInitializeThread
     
     ; Perform the memory copy operation assigned to this thread.
   paratoolMemoryCopyUnalignedThreadLoop:
@@ -164,6 +164,59 @@ paratoolMemoryCopyUnalignedThread           PROC PUBLIC
 
     ret
 paratoolMemoryCopyUnalignedThread           ENDP
+
+; ---------
+
+paratoolMemorySetAlignedThread              PROC PUBLIC
+    ; Save non-volatile registers.
+    push                    rbx
+    push                    rsi
+    push                    rdi
+    push                    r11
+    push                    r12
+    push                    r13
+    
+    ; Set aside the original parameters.
+    mov                     r11,                    r_param1
+    mov                     r12,                    r_param2
+    mov                     r13,                    r_param3
+    
+    ; Initialize.
+    paratoolMemoryOpInitializeThread
+    
+    ; Create the 256-bit value to be written to memory.
+    vmovq                   xmm0,                   r12
+    vpbroadcastq            ymm1,                   xmm0
+    
+    ; Perform the memory copy operation assigned to this thread.
+  paratoolMemorySetAlignedThreadLoop:
+    cmp                     rsi,                    rdi
+    jge                     paratoolMemorySetAlignedThreadDone
+    
+    ; Compute the byte offset of the 64-byte block.
+    ; This is equal to the iteration index multiplied by 64, or left-shifted by 6.
+    mov                     rcx,                    rsi
+    shl                     rcx,                    6
+    
+    ; Perform the memory-set operation.
+    ; Since there is no locality at all, use non-temporal hints.
+    vmovntdq                YMMWORD PTR [r11+rcx],                          ymm1
+    vmovntdq                YMMWORD PTR [r11+rcx+32],                       ymm1
+    
+    inc                     rsi
+    jmp                     paratoolMemorySetAlignedThreadLoop
+  paratoolMemorySetAlignedThreadDone:
+    
+    ; Restore non-volatile registers and return.
+    pop                     r13
+    pop                     r12
+    pop                     r11
+    pop                     rdi
+    pop                     rsi
+    pop                     rbx
+
+    ret
+paratoolMemorySetAlignedThread              ENDP
 
 
 _TEXT                                       ENDS

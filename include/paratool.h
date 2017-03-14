@@ -42,6 +42,15 @@ extern "C" {
     /// @param [in] num Number of bytes to copy.
     /// @return `destination` is returned upon completion.
     void* paratoolMemoryCopy(void* destination, const void* source, size_t num);
+    
+    /// Sets `num` bytes of memory at `buffer` to the value specified by `value`.
+    /// Intended to be a drop-in replacement for the standard `memset()` function.
+    /// Reverts to standard `memset()` if `num` is small enough or if called from within a Spindle parallelized region.
+    /// @param [in] buffer Target memory buffer.
+    /// @param [in] value Byte-sized value to write to the target memory buffer.
+    /// @param [in] num Number of bytes to initialize.
+    /// @return `buffer` is returned upon completion.
+    void* paratoolMemorySet(void* buffer, uint8_t value, size_t num);
 
 #ifdef __cplusplus
 }
