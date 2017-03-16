@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Paratool
+ * Parutil
  *   Multi-platform library of parallelized utility functions.
  *****************************************************************************
  * Authored by Samuel Grossman
@@ -10,15 +10,15 @@
  *   Implementation of library version API functions.
  *****************************************************************************/
 
-#include "../paratool.h"
+#include "../parutil.h"
 
 #include <stdint.h>
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
-// See "paratool.h" for documentation.
+// See "parutil.h" for documentation.
 
-uint32_t paratoolGetLibraryVersion(void)
+uint32_t parutilGetLibraryVersion(void)
 {
-    return PARATOOL_LIBRARY_VERSION;
+    return PARUTIL_LIBRARY_VERSION;
 }

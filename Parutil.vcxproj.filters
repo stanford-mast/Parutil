@@ -15,18 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\paratool.h">
+    <ClInclude Include="include\parutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\paratool\memory.h">
+    <ClInclude Include="include\parutil\memory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="include\paratool\registers.inc">
+    <None Include="include\parutil\registers.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="include\paratool\spindle.inc">
+    <None Include="include\parutil\spindle.inc">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

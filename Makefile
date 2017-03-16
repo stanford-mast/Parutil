@@ -1,5 +1,5 @@
 ###############################################################################
-# Paratool
+# Parutil
 #   Multi-platform library of parallelized utility functions.
 ###############################################################################
 # Authored by Samuel Grossman
@@ -13,7 +13,7 @@
 
 # --------- PROJECT PROPERTIES ------------------------------------------------
 
-PROJECT_NAME                = paratool
+PROJECT_NAME                = parutil
 PLATFORM_NAME               = linux
 
 SOURCE_DIR                  = source
@@ -42,9 +42,9 @@ CXX                         = g++
 AS                          = as
 AR                          = ar
 
-CCFLAGS                     = -O3 -Wall -fPIC -std=c11 -march=core-avx-i -mno-vzeroupper -I$(INCLUDE_DIR) -D_GNU_SOURCE -DPARATOOL_LINUX
-CXXFLAGS                    = -O3 -Wall -fPIC -std=c++0x -march=core-avx-i -mno-vzeroupper -I$(INCLUDE_DIR) -DPARATOOL_LINUX
-ASFLAGS                     = --64 -mmnemonic=intel -msyntax=intel -mnaked-reg -I$(ASSEMBLY_INCLUDE_DIR) --defsym PARATOOL_LINUX=1
+CCFLAGS                     = -O3 -Wall -fPIC -std=c11 -march=core-avx-i -mno-vzeroupper -I$(INCLUDE_DIR) -D_GNU_SOURCE -DPARUTIL_LINUX
+CXXFLAGS                    = -O3 -Wall -fPIC -std=c++0x -march=core-avx-i -mno-vzeroupper -I$(INCLUDE_DIR) -DPARUTIL_LINUX
+ASFLAGS                     = --64 -mmnemonic=intel -msyntax=intel -mnaked-reg -I$(ASSEMBLY_INCLUDE_DIR) --defsym PARUTIL_LINUX=1
 ARFLAGS                     = 
 
 
@@ -69,14 +69,14 @@ DEP_FILES_FROM_SOURCE       = $(patsubst $(SOURCE_DIR)/%, $(OUTPUT_DIR)/%$(DEP_F
 
 # --------- TOP-LEVEL RULE CONFIGURATION --------------------------------------
 
-.PHONY: paratool docs clean help
+.PHONY: parutil docs clean help
 
 .SECONDARY: $(ASSEMBLY_SOURCE_FILES) $(ASSEMBLY_HEADER_FILES)
 
 
 # --------- TARGET DEFINITIONS ------------------------------------------------
 
-paratool: $(OUTPUT_DIR)/$(OUTPUT_FILE)
+parutil: $(OUTPUT_DIR)/$(OUTPUT_FILE)
 
 docs: | $(OUTPUT_DOCS_DIR)
 	@doxygen
@@ -86,9 +86,9 @@ help:
 	@echo 'Usage: make [target]'
 	@echo ''
 	@echo 'Targets:'
-	@echo '    paratool'
+	@echo '    parutil'
 	@echo '        Default target.'
-	@echo '        Builds Paratool as a static library.'
+	@echo '        Builds Parutil as a static library.'
 	@echo '    docs'
 	@echo '        Builds HTML and LaTeX documentation using Doxygen.'
 	@echo '    clean'

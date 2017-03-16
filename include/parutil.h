@@ -1,12 +1,12 @@
 /*****************************************************************************
- * Paratool
+ * Parutil
  *   Multi-platform library of parallelized utility functions.
  *****************************************************************************
  * Authored by Samuel Grossman
  * Department of Electrical Engineering, Stanford University
  * Copyright (c) 2016-2017
  *************************************************************************//**
- * @file paratool.h
+ * @file parutil.h
  *   Declaration of external API functions.
  *   Top-level header file for this library, to be included externally.
  *****************************************************************************/
@@ -19,10 +19,10 @@
 
 // -------- VERSION INFORMATION -------------------------------------------- //
 
-/// 32-bit unsigned integer that represents the version of Paratool.
+/// 32-bit unsigned integer that represents the version of Parutil.
 /// Incremented each time a change is made that affects the API.
 /// - Version 1: Initial release.
-#define PARATOOL_LIBRARY_VERSION                 0x00000001
+#define PARUTIL_LIBRARY_VERSION                 0x00000001
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
@@ -30,9 +30,9 @@
 extern "C" {
 #endif
 
-    /// Retrieves and returns the compiled Paratool library version.
-    /// @return Paratool library version number.
-    uint32_t paratoolGetLibraryVersion(void);
+    /// Retrieves and returns the compiled Parutil library version.
+    /// @return Parutil library version number.
+    uint32_t parutilGetLibraryVersion(void);
 
     /// Copies `num` bytes of memory at `source` to memory at `destination`.
     /// Intended to be a drop-in replacement for the standard `memcpy()` function.
@@ -41,7 +41,7 @@ extern "C" {
     /// @param [in] source Source memory buffer.
     /// @param [in] num Number of bytes to copy.
     /// @return `destination` is returned upon completion.
-    void* paratoolMemoryCopy(void* destination, const void* source, size_t num);
+    void* parutilMemoryCopy(void* destination, const void* source, size_t num);
     
     /// Sets `num` bytes of memory at `buffer` to the value specified by `value`.
     /// Intended to be a drop-in replacement for the standard `memset()` function.
@@ -50,7 +50,7 @@ extern "C" {
     /// @param [in] value Byte-sized value to write to the target memory buffer.
     /// @param [in] num Number of bytes to initialize.
     /// @return `buffer` is returned upon completion.
-    void* paratoolMemorySet(void* buffer, uint8_t value, size_t num);
+    void* parutilMemorySet(void* buffer, uint8_t value, size_t num);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Paratool
+ * Parutil
  *   Multi-platform library of parallelized utility functions.
  *****************************************************************************
  * Authored by Samuel Grossman
@@ -25,7 +25,7 @@
 /// @param [in] destination Target memory buffer.
 /// @param [in] source Source memory buffer.
 /// @param [in] num64 Number of 64-byte blocks to copy.
-void paratoolMemoryCopyAlignedThread(void* destination, const void* source, size_t num64);
+void parutilMemoryCopyAlignedThread(void* destination, const void* source, size_t num64);
 
 /// Copies `num64` 64-byte blocks of memory from `destination` to `source`.
 /// No assumptions are made as to their alignment.
@@ -34,7 +34,7 @@ void paratoolMemoryCopyAlignedThread(void* destination, const void* source, size
 /// @param [in] destination Target memory buffer.
 /// @param [in] source Source memory buffer.
 /// @param [in] num64 Number of 64-byte blocks to copy.
-void paratoolMemoryCopyUnalignedThread(void* destination, const void* source, size_t num64);
+void parutilMemoryCopyUnalignedThread(void* destination, const void* source, size_t num64);
 
 /// Sets `num64` properly-aligned 64-byte blocks of memory to `value`.
 /// Intended to be called from within the context of a Spindle parallelized region.
@@ -42,4 +42,4 @@ void paratoolMemoryCopyUnalignedThread(void* destination, const void* source, si
 /// @param [in] buffer Target memory buffer.
 /// @param [in] value Value to write to each 64-bit element of the target memory buffer.
 /// @param [in] num64 Number of 64-byte blocks to initialize.
-void paratoolMemorySetAlignedThread(void* buffer, uint64_t value, size_t num64);
+void parutilMemorySetAlignedThread(void* buffer, uint64_t value, size_t num64);

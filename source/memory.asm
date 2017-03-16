@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Paratool
+; Parutil
 ;   Multi-platform library of parallelized utility functions.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Authored by Samuel Grossman
@@ -19,7 +19,7 @@ _TEXT                                       SEGMENT
 
 ; --------- MACROS ------------------------------------------------------------
 
-paratoolMemoryOpInitializeThread            MACRO
+parutilMemoryOpInitializeThread            MACRO
     ; Extract thread information useful as loop controls, assigning chunks to each thread round-robin.
     ; Number of iterations is equal to the number of 64-byte blocks, passed in as r_param3 and held in r13.
     ; Formulas:
@@ -65,7 +65,7 @@ ENDM
 ; --------- FUNCTIONS ---------------------------------------------------------
 ; See "memorycopy.h" for documentation.
 
-paratoolMemoryCopyAlignedThread             PROC PUBLIC
+parutilMemoryCopyAlignedThread             PROC PUBLIC
     ; Save non-volatile registers.
     push                    rbx
     push                    rsi
@@ -80,12 +80,12 @@ paratoolMemoryCopyAlignedThread             PROC PUBLIC
     mov                     r13,                    r_param3
     
     ; Initialize.
-    paratoolMemoryOpInitializeThread
+    parutilMemoryOpInitializeThread
     
     ; Perform the memory copy operation assigned to this thread.
-  paratoolMemoryCopyAlignedThreadLoop:
+  parutilMemoryCopyAlignedThreadLoop:
     cmp                     rsi,                    rdi
-    jge                     paratoolMemoryCopyAlignedThreadDone
+    jge                     parutilMemoryCopyAlignedThreadDone
     
     ; Compute the byte offset of the 64-byte block.
     ; This is equal to the iteration index multiplied by 64, or left-shifted by 6.
@@ -100,8 +100,8 @@ paratoolMemoryCopyAlignedThread             PROC PUBLIC
     vmovntdq                YMMWORD PTR [r12+rcx+32],                       ymm1
     
     inc                     rsi
-    jmp                     paratoolMemoryCopyAlignedThreadLoop
-  paratoolMemoryCopyAlignedThreadDone:
+    jmp                     parutilMemoryCopyAlignedThreadLoop
+  parutilMemoryCopyAlignedThreadDone:
     
     ; Restore non-volatile registers and return.
     pop                     r13
@@ -112,11 +112,11 @@ paratoolMemoryCopyAlignedThread             PROC PUBLIC
     pop                     rbx
 
     ret
-paratoolMemoryCopyAlignedThread             ENDP
+parutilMemoryCopyAlignedThread             ENDP
 
 ; ---------
 
-paratoolMemoryCopyUnalignedThread           PROC PUBLIC
+parutilMemoryCopyUnalignedThread           PROC PUBLIC
     ; Save non-volatile registers.
     push                    rbx
     push                    rsi
@@ -134,12 +134,12 @@ paratoolMemoryCopyUnalignedThread           PROC PUBLIC
     mov                     r13,                    r_param3
     
     ; Initialize.
-    paratoolMemoryOpInitializeThread
+    parutilMemoryOpInitializeThread
     
     ; Perform the memory copy operation assigned to this thread.
-  paratoolMemoryCopyUnalignedThreadLoop:
+  parutilMemoryCopyUnalignedThreadLoop:
     cmp                     rsi,                    rdi
-    jge                     paratoolMemoryCopyUnalignedThreadDone
+    jge                     parutilMemoryCopyUnalignedThreadDone
     
     ; Compute the byte offset of the 8-byte block.
     ; This is equal to the iteration index multiplied by 8, or left-shifted by 3.
@@ -151,8 +151,8 @@ paratoolMemoryCopyUnalignedThread           PROC PUBLIC
     movnti                  QWORD PTR [r12+rcx],    rax
     
     inc                     rsi
-    jmp                     paratoolMemoryCopyUnalignedThreadLoop
-  paratoolMemoryCopyUnalignedThreadDone:
+    jmp                     parutilMemoryCopyUnalignedThreadLoop
+  parutilMemoryCopyUnalignedThreadDone:
     
     ; Restore non-volatile registers and return.
     pop                     r13
@@ -163,11 +163,11 @@ paratoolMemoryCopyUnalignedThread           PROC PUBLIC
     pop                     rbx
 
     ret
-paratoolMemoryCopyUnalignedThread           ENDP
+parutilMemoryCopyUnalignedThread           ENDP
 
 ; ---------
 
-paratoolMemorySetAlignedThread              PROC PUBLIC
+parutilMemorySetAlignedThread              PROC PUBLIC
     ; Save non-volatile registers.
     push                    rbx
     push                    rsi
@@ -182,16 +182,16 @@ paratoolMemorySetAlignedThread              PROC PUBLIC
     mov                     r13,                    r_param3
     
     ; Initialize.
-    paratoolMemoryOpInitializeThread
+    parutilMemoryOpInitializeThread
     
     ; Create the 256-bit value to be written to memory.
     vmovq                   xmm0,                   r12
     vpbroadcastq            ymm1,                   xmm0
     
     ; Perform the memory copy operation assigned to this thread.
-  paratoolMemorySetAlignedThreadLoop:
+  parutilMemorySetAlignedThreadLoop:
     cmp                     rsi,                    rdi
-    jge                     paratoolMemorySetAlignedThreadDone
+    jge                     parutilMemorySetAlignedThreadDone
     
     ; Compute the byte offset of the 64-byte block.
     ; This is equal to the iteration index multiplied by 64, or left-shifted by 6.
@@ -204,8 +204,8 @@ paratoolMemorySetAlignedThread              PROC PUBLIC
     vmovntdq                YMMWORD PTR [r11+rcx+32],                       ymm1
     
     inc                     rsi
-    jmp                     paratoolMemorySetAlignedThreadLoop
-  paratoolMemorySetAlignedThreadDone:
+    jmp                     parutilMemorySetAlignedThreadLoop
+  parutilMemorySetAlignedThreadDone:
     
     ; Restore non-volatile registers and return.
     pop                     r13
@@ -216,7 +216,7 @@ paratoolMemorySetAlignedThread              PROC PUBLIC
     pop                     rbx
 
     ret
-paratoolMemorySetAlignedThread              ENDP
+parutilMemorySetAlignedThread              ENDP
 
 
 _TEXT                                       ENDS

@@ -1,6 +1,6 @@
 #!/bin/sh
 ###############################################################################
-# Paratool
+# Parutil
 #   Multi-platform library of parallelized utility functions.
 ###############################################################################
 # Authored by Samuel Grossman

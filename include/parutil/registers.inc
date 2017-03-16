@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Paratool
+; Parutil
 ;   Multi-platform library of parallelized utility functions.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Authored by Samuel Grossman
@@ -12,15 +12,15 @@
 ;   Otherwise improves readability of assembly code.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-IFNDEF __PARATOOL_REGISTERS_INC
-__PARATOOL_REGISTERS_INC EQU 1
+IFNDEF __PARUTIL_REGISTERS_INC
+__PARUTIL_REGISTERS_INC EQU 1
 
 
 ; --------- PLATFORM-SPECIFIC FUNCTION CALLING CONVENTIONS --------------------
 ; Windows and Linux use different registers for integer parameters and return values.
 ; These definitions abstract this away.
 
-IFDEF PARATOOL_WINDOWS
+IFDEF PARUTIL_WINDOWS
 ; 64-bit parameter and return value registers
 r_param1                                    TEXTEQU     <rcx>
 r_param2                                    TEXTEQU     <rdx>
@@ -36,7 +36,7 @@ e_param4                                    TEXTEQU     <r9d>
 e_retval                                    TEXTEQU     <eax>
 ENDIF
 
-IFDEF PARATOOL_LINUX
+IFDEF PARUTIL_LINUX
 ; 64-bit parameter and return value registers
 r_param1                                    TEXTEQU     <rdi>
 r_param2                                    TEXTEQU     <rsi>
@@ -53,4 +53,4 @@ e_retval                                    TEXTEQU     <eax>
 ENDIF
 
 
-ENDIF ;__PARATOOL_REGISTERS_INC
+ENDIF ;__PARUTIL_REGISTERS_INC

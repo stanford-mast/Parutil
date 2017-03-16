@@ -11,12 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\paratool.h" />
-    <ClInclude Include="include\paratool\memory.h" />
+    <ClInclude Include="include\parutil.h" />
+    <ClInclude Include="include\parutil\memory.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="include\paratool\registers.inc" />
-    <None Include="include\paratool\spindle.inc" />
+    <None Include="include\parutil\registers.inc" />
+    <None Include="include\parutil\spindle.inc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\memory.c" />
@@ -27,7 +27,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{04148694-9D3A-4902-A609-686056684060}</ProjectGuid>
-    <RootNamespace>Paratool</RootNamespace>
+    <RootNamespace>Parutil</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -71,7 +71,7 @@
       <AdditionalIncludeDirectories>include\$(ProjectName)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>PARATOOL_WINDOWS;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PARUTIL_WINDOWS;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
@@ -80,7 +80,7 @@
     </ClCompile>
     <MASM>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <PreprocessorDefinitions>PARATOOL_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PARUTIL_WINDOWS</PreprocessorDefinitions>
       <IncludePaths>include\$(ProjectName);%(IncludePaths)</IncludePaths>
     </MASM>
   </ItemDefinitionGroup>
@@ -92,7 +92,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>include\$(ProjectName)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>PARATOOL_WINDOWS;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PARUTIL_WINDOWS;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
@@ -105,7 +105,7 @@
     </Link>
     <MASM>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <PreprocessorDefinitions>PARATOOL_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PARUTIL_WINDOWS</PreprocessorDefinitions>
       <IncludePaths>include\$(ProjectName);%(IncludePaths)</IncludePaths>
     </MASM>
   </ItemDefinitionGroup>

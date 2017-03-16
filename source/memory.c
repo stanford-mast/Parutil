@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Paratool
+ * Parutil
  *   Multi-platform library of parallelized utility functions.
  *****************************************************************************
  * Authored by Samuel Grossman
@@ -19,62 +19,62 @@
 
 // -------- CONSTANTS ------------------------------------------------------ //
 
-/// Minimum size of a memory operation, in bytes, before Paratool will parallelize it.
-static const size_t kParatoolMinimumOperationSize = 32ull * 1024ull * 1024ull;
+/// Minimum size of a memory operation, in bytes, before Parutil will parallelize it.
+static const size_t kParutilMinimumOperationSize = 32ull * 1024ull * 1024ull;
 
 
 // -------- TYPE DEFINITIONS ----------------------------------------------- //
 
 /// Contains all information needed to define a memory operation.
 /// For internal use only.
-typedef struct SParatoolMemoryOperationSpec
+typedef struct SParutilMemoryOperationSpec
 {
     void* destination;                                                      ///< Base address of the destination memory buffer.
     const void* source;                                                     ///< Base address of the source memory buffer. Not all memory operations need this information.
     uint64_t value;                                                         ///< Arbitrary value argument to be used by individual memory operations. Not all memory operations need this information.
     size_t num64;                                                           ///< Number of 64-byte blocks (cache lines) to include in the memory operation.
-} SParatoolMemoryOperationSpec;
+} SParutilMemoryOperationSpec;
 
 
 // -------- INTERNAL FUNCTIONS --------------------------------------------- //
 
 /// Internal control function for memory copy operations.
-/// @param [in] arg Pointer to the #SParatoolMemoryOperationSpec structure that contains information about the overall memory copy operation to be parallelized.
-static void paratoolMemoryCopyInternalThread(void* arg)
+/// @param [in] arg Pointer to the #SParutilMemoryOperationSpec structure that contains information about the overall memory copy operation to be parallelized.
+static void parutilMemoryCopyInternalThread(void* arg)
 {
-    SParatoolMemoryOperationSpec* memoryOpSpec = (SParatoolMemoryOperationSpec*)arg;
+    SParutilMemoryOperationSpec* memoryOpSpec = (SParutilMemoryOperationSpec*)arg;
 
     if (((size_t)memoryOpSpec->destination & (size_t)31) || ((size_t)memoryOpSpec->source & (size_t)31))
     {
         // Either the source or destination address is not aligned on a 256-bit (32-byte) boundary, so the unaligned copy implementation must be used.
-        paratoolMemoryCopyUnalignedThread(memoryOpSpec->destination, memoryOpSpec->source, memoryOpSpec->num64);
+        parutilMemoryCopyUnalignedThread(memoryOpSpec->destination, memoryOpSpec->source, memoryOpSpec->num64);
     }
     else
     {
         // Both source and destination addresses are aligned on a 256-bit (32-byte) boundary, so the aligned copy implementation can be used.
         // This is preferable, as it will result in higher performance.
-        paratoolMemoryCopyAlignedThread(memoryOpSpec->destination, memoryOpSpec->source, memoryOpSpec->num64);
+        parutilMemoryCopyAlignedThread(memoryOpSpec->destination, memoryOpSpec->source, memoryOpSpec->num64);
     }
 }
 
 /// Internal control function for memory initialization operations.
-/// @param [in] arg Pointer to the #SParatoolMemoryOperationSpec structure that contains information about the overall memory initialization operation to be parallelized.
-static void paratoolMemorySetInternalThread(void* arg)
+/// @param [in] arg Pointer to the #SParutilMemoryOperationSpec structure that contains information about the overall memory initialization operation to be parallelized.
+static void parutilMemorySetInternalThread(void* arg)
 {
-    SParatoolMemoryOperationSpec* memoryOpSpec = (SParatoolMemoryOperationSpec*)arg;
+    SParutilMemoryOperationSpec* memoryOpSpec = (SParutilMemoryOperationSpec*)arg;
     
     // Alignment is ensured by the function that spawns threads to initialize in parallel.
     // No need to have an unaligned implementation as a result.
-    paratoolMemorySetAlignedThread(memoryOpSpec->destination, memoryOpSpec->value, memoryOpSpec->num64);
+    parutilMemorySetAlignedThread(memoryOpSpec->destination, memoryOpSpec->value, memoryOpSpec->num64);
 }
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
-// See "paratool.h" for documentation.
+// See "parutil.h" for documentation.
 
-void* paratoolMemoryCopy(void* destination, const void* source, size_t num)
+void* parutilMemoryCopy(void* destination, const void* source, size_t num)
 {
-    if (num < (kParatoolMinimumOperationSize))
+    if (num < (kParutilMinimumOperationSize))
     {
         // For small enough buffers, it is not worth the overhead of setting up threads to parallelize.
         // If operating inside a Spindle parallelized region, it is also not possible to create another one.
@@ -82,13 +82,13 @@ void* paratoolMemoryCopy(void* destination, const void* source, size_t num)
     }
     else
     {
-        SParatoolMemoryOperationSpec memoryOpSpec;
+        SParutilMemoryOperationSpec memoryOpSpec;
         SSpindleTaskSpec taskSpec;
         size_t numUnalignedBytes;
         
         // Set up control information for Spindle.
         // TODO: Once Silo supports returning the NUMA node for a buffer, use that information for better NUMA awareness here.
-        taskSpec.func = &paratoolMemoryCopyInternalThread;
+        taskSpec.func = &parutilMemoryCopyInternalThread;
         taskSpec.arg = (void*)&memoryOpSpec;
         taskSpec.numaNode = 0;
         taskSpec.numThreads = 0;
@@ -131,9 +131,9 @@ void* paratoolMemoryCopy(void* destination, const void* source, size_t num)
 
 // --------
 
-void* paratoolMemorySet(void* buffer, uint8_t value, size_t num)
+void* parutilMemorySet(void* buffer, uint8_t value, size_t num)
 {
-    if (num < (kParatoolMinimumOperationSize))
+    if (num < (kParutilMinimumOperationSize))
     {
         // For small enough buffers, it is not worth the overhead of setting up threads to parallelize.
         // If operating inside a Spindle parallelized region, it is also not possible to create another one.
@@ -141,13 +141,13 @@ void* paratoolMemorySet(void* buffer, uint8_t value, size_t num)
     }
     else
     {
-        SParatoolMemoryOperationSpec memoryOpSpec;
+        SParutilMemoryOperationSpec memoryOpSpec;
         SSpindleTaskSpec taskSpec;
         size_t numUnalignedBytes;
         
         // Set up control information for Spindle.
         // TODO: Once Silo supports returning the NUMA node for a buffer, use that information for better NUMA awareness here.
-        taskSpec.func = &paratoolMemorySetInternalThread;
+        taskSpec.func = &parutilMemorySetInternalThread;
         taskSpec.arg = (void*)&memoryOpSpec;
         taskSpec.numaNode = 0;
         taskSpec.numThreads = 0;
