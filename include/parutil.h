@@ -22,7 +22,8 @@
 /// 32-bit unsigned integer that represents the version of Parutil.
 /// Incremented each time a change is made that affects the API.
 /// - Version 1: Initial release.
-#define PARUTIL_LIBRARY_VERSION                 0x00000001
+/// - Version 2: Change semantics to allow invocation from within a Spindle parallelized region.
+#define PARUTIL_LIBRARY_VERSION                 0x00000002
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
@@ -36,7 +37,8 @@ extern "C" {
 
     /// Copies `num` bytes of memory at `source` to memory at `destination`.
     /// Intended to be a drop-in replacement for the standard `memcpy()` function.
-    /// Reverts to standard `memcpy()` if `num` is small enough or if called from within a Spindle parallelized region.
+    /// If called from within a Spindle parallelized region, every thread in the same task must invoke this function with the same arguments.
+    /// Reverts to standard `memcpy()` if `num` is small enough.
     /// @param [in] destination Target memory buffer.
     /// @param [in] source Source memory buffer.
     /// @param [in] num Number of bytes to copy.
@@ -45,7 +47,8 @@ extern "C" {
     
     /// Sets `num` bytes of memory at `buffer` to the value specified by `value`.
     /// Intended to be a drop-in replacement for the standard `memset()` function.
-    /// Reverts to standard `memset()` if `num` is small enough or if called from within a Spindle parallelized region.
+    /// If called from within a Spindle parallelized region, every thread in the same task must invoke this function with the same arguments.
+    /// Reverts to standard `memset()` if `num` is small enough.
     /// @param [in] buffer Target memory buffer.
     /// @param [in] value Byte-sized value to write to the target memory buffer.
     /// @param [in] num Number of bytes to initialize.
