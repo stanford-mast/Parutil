@@ -1,4 +1,5 @@
-Description will go here.
+Parutil is a multi-platform topology-aware utility library that offers high performance parallel implementations of common tasks.
+It features a simple API that in many cases acts as a drop-in replacement for single-threaded versions offered by standard runtime libraries.
 
 Parutil is implemented using a combination of C and assembly.
 

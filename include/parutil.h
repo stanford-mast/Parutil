@@ -37,6 +37,7 @@ extern "C" {
 
     /// Copies `num` bytes of memory at `source` to memory at `destination`.
     /// Intended to be a drop-in replacement for the standard `memcpy()` function.
+    /// It is the caller's responsibility to ensure that `source` and `destination` regions do not overlap.
     /// If called from within a Spindle parallelized region, every thread in the same task must invoke this function with the same arguments.
     /// Reverts to standard `memcpy()` if `num` is small enough.
     /// @param [in] destination Target memory buffer.
