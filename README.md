@@ -42,7 +42,7 @@ Projects that make use of Parutil should include the top-level parutil.h header 
 
 Assuming a Linux-based C-language project that uses Parutil and consists of a single source file called "main.c", the following command would build and link with Parutil.
 
-    gcc main.c -mno-vzeroupper -pthread -lparutil -lsilo -lspindle -ltopo -lhwloc -lnuma -lpciaccess -lxml2
+    g++ main.c -mno-vzeroupper -pthread -lparutil -lsilo -lspindle -ltopo -lhwloc -lnuma -lpciaccess -lxml2
 
 
 # Getting Started
