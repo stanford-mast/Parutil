@@ -94,10 +94,10 @@ parutilMemoryCopyAlignedThread             PROC PUBLIC
     
     ; Perform the memory-copy operation.
     ; Since there is no locality at all, use non-temporal hints.
-    vmovntdqa               ymm0,                   YMMWORD PTR [r11+rcx]
-    vmovntdqa               ymm1,                   YMMWORD PTR [r11+rcx+32]
-    vmovntdq                YMMWORD PTR [r12+rcx],                          ymm0
-    vmovntdq                YMMWORD PTR [r12+rcx+32],                       ymm1
+    vmovntdqa               ymm0,                   YMMWORD PTR [r12+rcx]
+    vmovntdqa               ymm1,                   YMMWORD PTR [r12+rcx+32]
+    vmovntdq                YMMWORD PTR [r11+rcx],                          ymm0
+    vmovntdq                YMMWORD PTR [r11+rcx+32],                       ymm1
     
     inc                     rsi
     jmp                     parutilMemoryCopyAlignedThreadLoop
@@ -147,8 +147,8 @@ parutilMemoryCopyUnalignedThread           PROC PUBLIC
     shl                     rcx,                    3
     
     ; Perform the memory-copy operation, one 64-bit integer at a time.
-    mov                     rax,                    QWORD PTR [r11+rcx]
-    movnti                  QWORD PTR [r12+rcx],    rax
+    mov                     rax,                    QWORD PTR [r12+rcx]
+    movnti                  QWORD PTR [r11+rcx],    rax
     
     inc                     rsi
     jmp                     parutilMemoryCopyUnalignedThreadLoop

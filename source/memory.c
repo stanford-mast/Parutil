@@ -64,8 +64,7 @@ static void parutilMemorySetInternalThread(void* arg)
 {
     SParutilMemoryOperationSpec* memoryOpSpec = (SParutilMemoryOperationSpec*)arg;
     
-    // Alignment is ensured by the function that spawns threads to initialize in parallel.
-    // No need to have an unaligned implementation as a result.
+    // Alignment is ensured by the calling function.
     parutilMemorySetAlignedThread(memoryOpSpec->destination, memoryOpSpec->value, memoryOpSpec->num64);
 }
 
