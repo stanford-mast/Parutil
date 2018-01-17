@@ -29,6 +29,9 @@
     <None Include="include\parutil\spindle.inc">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="include\parutil\scheduler.inc">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\memory.c">

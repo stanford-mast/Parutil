@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="include\parutil\registers.inc" />
+    <None Include="include\parutil\scheduler.inc" />
     <None Include="include\parutil\spindle.inc" />
   </ItemGroup>
   <ItemGroup>

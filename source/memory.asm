@@ -11,59 +11,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 INCLUDE registers.inc
+INCLUDE scheduler.inc
 INCLUDE spindle.inc
 
 
 _TEXT                                       SEGMENT
 
 
-; --------- MACROS ------------------------------------------------------------
-
-parutilMemoryOpInitializeThread            MACRO
-    ; Extract thread information useful as loop controls, assigning chunks to each thread round-robin.
-    ; Number of iterations is equal to the number of 64-byte blocks, passed in as r_param3 and held in r13.
-    ; Formulas:
-    ;    assignment  = #iterations / #total_threads
-    ;    addon       = #iterations % #total_threads < global_thread_id ? 1 : 0
-    ;    prev_addons = min(#iterations % #total_threads, global_thread_id)
-    ;
-    ;    base (rsi)  = (assignment * global_thread_id) + prev_addons
-    ;    inc         = 1
-    ;    max  (rdi)  = base + assignment + addon - 1
-    
-    ; First, perform the unsigned division by setting rdx:rax = #iterations and dividing by #total_threads.
-    ; Afterwards, rax contains the quotient ("assignment" in the formulas above) and rdx contains the remainder.
-    mov                     rax,                    r13
-    xor                     rdx,                    rdx
-    xor                     rcx,                    rcx
-    spindleAsmHelperGetLocalThreadCount             ecx
-    div                     rcx
-    
-    ; To calculate other values using total_threads, extract it to rcx.
-    ; This can be used directly to obtain "addon" (rbx) and "prev_addons" (rsi).
-    spindleAsmHelperGetLocalThreadID                ecx
-    xor                     rbx,                    rbx
-    mov                     rsi,                    rdx
-    mov                     rdi,                    0000000000000001h
-    cmp                     rcx,                    rdx
-    cmovl                   rbx,                    rdi
-    cmovl                   rsi,                    rcx
-    
-    ; Create some partial values using the calculated quantities.
-    ;    rsi (base) = prev_addons - this was done above, rdi (max) = assignment + addon - 1.
-    ; Note that because we are using "jge" below and not "jg", we skip the -1, since "jge" requires that rdi be (last index to process + 1).
-    mov                     rdi,                    rax
-    add                     rdi,                    rbx
-    
-    ; Perform multiplication of assignment * total_threads, result in rax.
-    ; Use the result to add to rsi and figure out "base", then add to rdi to get "max".
-    mul                     rcx
-    add                     rsi,                    rax
-    add                     rdi,                    rsi
-ENDM
-
 ; --------- FUNCTIONS ---------------------------------------------------------
-; See "memorycopy.h" for documentation.
+; See "memory.h" for documentation.
 
 parutilMemoryCopyAlignedThread             PROC PUBLIC
     ; Save non-volatile registers.
@@ -80,7 +36,7 @@ parutilMemoryCopyAlignedThread             PROC PUBLIC
     mov                     r13,                    r_param3
     
     ; Initialize.
-    parutilMemoryOpInitializeThread
+    parutilSchedulerInitStaticChunk
     
     ; Perform the memory copy operation assigned to this thread.
   parutilMemoryCopyAlignedThreadLoop:
@@ -134,7 +90,7 @@ parutilMemoryCopyUnalignedThread           PROC PUBLIC
     mov                     r13,                    r_param3
     
     ; Initialize.
-    parutilMemoryOpInitializeThread
+    parutilSchedulerInitStaticChunk
     
     ; Perform the memory copy operation assigned to this thread.
   parutilMemoryCopyUnalignedThreadLoop:
@@ -182,7 +138,7 @@ parutilMemorySetAlignedThread              PROC PUBLIC
     mov                     r13,                    r_param3
     
     ; Initialize.
-    parutilMemoryOpInitializeThread
+    parutilSchedulerInitStaticChunk
     
     ; Create the 256-bit value to be written to memory.
     vmovq                   xmm0,                   r12
