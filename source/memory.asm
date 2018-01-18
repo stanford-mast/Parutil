@@ -31,9 +31,9 @@ parutilMemoryCopyAlignedThread              PROC PUBLIC
     push                    r13
     
     ; Set aside the original parameters.
-    mov                     r11,                    r_param1
-    mov                     r12,                    r_param2
-    mov                     r13,                    r_param3
+    mov                     r11,                    r64_param1
+    mov                     r12,                    r64_param2
+    mov                     r13,                    r64_param3
     
     ; Initialize.
     parutilSchedulerInitStaticChunk
@@ -82,12 +82,12 @@ parutilMemoryCopyUnalignedThread            PROC PUBLIC
     push                    r13
     
     ; To translate from 64-byte blocks to 8-byte blocks, multiply the number of blocks by 8.
-    shl                     r_param3,               3
+    shl                     r64_param3,             3
     
     ; Set aside the original parameters.
-    mov                     r11,                    r_param1
-    mov                     r12,                    r_param2
-    mov                     r13,                    r_param3
+    mov                     r11,                    r64_param1
+    mov                     r12,                    r64_param2
+    mov                     r13,                    r64_param3
     
     ; Initialize.
     parutilSchedulerInitStaticChunk
@@ -133,9 +133,9 @@ parutilMemorySetAlignedThread               PROC PUBLIC
     push                    r13
     
     ; Set aside the original parameters.
-    mov                     r11,                    r_param1
-    mov                     r12,                    r_param2
-    mov                     r13,                    r_param3
+    mov                     r11,                    r64_param1
+    mov                     r12,                    r64_param2
+    mov                     r13,                    r64_param3
     
     ; Initialize.
     parutilSchedulerInitStaticChunk

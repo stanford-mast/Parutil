@@ -18,15 +18,6 @@
 #include <stdint.h>
 
 
-// -------- VERSION INFORMATION -------------------------------------------- //
-
-/// 32-bit unsigned integer that represents the version of Parutil.
-/// Incremented each time a change is made that affects the API.
-/// - Version 1: Initial release.
-/// - Version 2: Change semantics to allow invocation from within a Spindle parallelized region.
-#define PARUTIL_LIBRARY_VERSION                 0x00000002
-
-
 // -------- TYPE DEFINITIONS ----------------------------------------------- //
 
 /// Communicates static schedule information to applications that use Parutil's scheduling assistance functionality.
@@ -50,30 +41,116 @@ typedef enum EParutilStaticScheduler
 extern "C" {
 #endif
 
-    /// Retrieves and returns the compiled Parutil library version.
-    /// @return Parutil library version number.
-    uint32_t parutilGetLibraryVersion(void);
+    // -------- ATOMIC ----------------------------------------------------- //
+    
+    /// Performs an atomic add operation with 8-bit operands.
+    /// The specified memory location is updated with its current value plus the supplied value.
+    /// @param [in,out] ptr Memory location of the value to add. This location is updated with the result of the summation.
+    /// @param [in] incr Value to add to the specified memory location.
+    void parutilAtomicAdd8(uint8_t* const ptr, const uint8_t incr);
 
+    /// Performs an atomic add operation with 16-bit operands.
+    /// The specified memory location is updated with its current value plus the supplied value.
+    /// @param [in,out] ptr Memory location of the value to add. This location is updated with the result of the summation.
+    /// @param [in] incr Value to add to the specified memory location.
+    void parutilAtomicAdd16(uint16_t* const ptr, const uint16_t incr);
+    
+    /// Performs an atomic add operation with 32-bit operands.
+    /// The specified memory location is updated with its current value plus the supplied value.
+    /// @param [in,out] ptr Memory location of the value to add. This location is updated with the result of the summation.
+    /// @param [in] incr Value to add to the specified memory location.
+    void parutilAtomicAdd32(uint32_t* const ptr, const uint32_t incr);
+    
+    /// Performs an atomic add operation with 64-bit operands.
+    /// The specified memory location is updated with its current value plus the supplied value.
+    /// @param [in,out] ptr Memory location of the value to add. This location is updated with the result of the summation.
+    /// @param [in] incr Value to add to the specified memory location.
+    void parutilAtomicAdd64(uint64_t* const ptr, const uint64_t incr);
+    
+    /// Performs an atomic exchange operation with 8-bit operands.
+    /// The specified memory location is exchanged with the specified value.
+    /// @param [in,out] ptr Memory location of the value to be exchanged.
+    /// @param [in] value Value to be written to the memory location.
+    /// @return Value at the memory location prior to the exchange operation.
+    uint8_t parutilAtomicExchange8(uint8_t* const ptr, const uint8_t value);
+
+    /// Performs an atomic exchange operation with 16-bit operands.
+    /// The specified memory location is exchanged with the specified value.
+    /// @param [in,out] ptr Memory location of the value to be exchanged.
+    /// @param [in] value Value to be written to the memory location.
+    /// @return Value at the memory location prior to the exchange operation.
+    uint16_t parutilAtomicExchange16(uint16_t* const ptr, const uint16_t value);
+    
+    /// Performs an atomic exchange operation with 32-bit operands.
+    /// The specified memory location is exchanged with the specified value.
+    /// @param [in,out] ptr Memory location of the value to be exchanged.
+    /// @param [in] value Value to be written to the memory location.
+    /// @return Value at the memory location prior to the exchange operation.
+    uint32_t parutilAtomicExchange32(uint32_t* const ptr, const uint32_t value);
+    
+    /// Performs an atomic exchange operation with 64-bit operands.
+    /// The specified memory location is exchanged with the specified value.
+    /// @param [in,out] ptr Memory location of the value to be exchanged.
+    /// @param [in] value Value to be written to the memory location.
+    /// @return Value at the memory location prior to the exchange operation.
+    uint64_t parutilAtomicExchange64(uint64_t* const ptr, const uint64_t value);
+    
+    /// Performs an atomic exchange-and-add operation with 8-bit operands.
+    /// The specified memory location is updated with its current value plus the supplied value, and the old value of the memory location is returned.
+    /// @param [in,out] ptr Memory location of the value to add. This location is updated with the result of the summation.
+    /// @param [in] incr Value to add to the specified memory location.
+    /// @return Value at the memory location prior to the addition operation.
+    uint8_t parutilAtomicExchangeAdd8(uint8_t* const ptr, const uint8_t incr);
+
+    /// Performs an atomic exchange-and-add operation with 16-bit operands.
+    /// The specified memory location is updated with its current value plus the supplied value, and the old value of the memory location is returned.
+    /// @param [in,out] ptr Memory location of the value to add. This location is updated with the result of the summation.
+    /// @param [in] incr Value to add to the specified memory location.
+    /// @return Value at the memory location prior to the addition operation.
+    uint16_t parutilAtomicExchangeAdd16(uint16_t* const ptr, const uint16_t incr);
+    
+    /// Performs an atomic exchange-and-add operation with 32-bit operands.
+    /// The specified memory location is updated with its current value plus the supplied value, and the old value of the memory location is returned.
+    /// @param [in,out] ptr Memory location of the value to add. This location is updated with the result of the summation.
+    /// @param [in] incr Value to add to the specified memory location.
+    /// @return Value at the memory location prior to the addition operation.
+    uint32_t parutilAtomicExchangeAdd32(uint32_t* const ptr, const uint32_t incr);
+    
+    /// Performs an atomic exchange-and-add operation with 64-bit operands.
+    /// The specified memory location is updated with its current value plus the supplied value, and the old value of the memory location is returned.
+    /// @param [in,out] ptr Memory location of the value to add. This location is updated with the result of the summation.
+    /// @param [in] incr Value to add to the specified memory location.
+    /// @return Value at the memory location prior to the addition operation.
+    uint64_t parutilAtomicExchangeAdd64(uint64_t* const ptr, const uint64_t incr);
+    
+    
+    // -------- MEMORY ----------------------------------------------------- //
+    
     /// Copies `num` bytes of memory at `source` to memory at `destination`.
     /// Intended to be a drop-in replacement for the standard `memcpy()` function.
     /// It is the caller's responsibility to ensure that `source` and `destination` regions do not overlap.
     /// If called from within a Spindle parallelized region, every thread in the same task must invoke this function with the same arguments.
+    /// If not, uses all available hardware threads on the NUMA node of the destination buffer.
     /// Reverts to standard `memcpy()` if `num` is small enough.
     /// @param [in] destination Target memory buffer.
     /// @param [in] source Source memory buffer.
     /// @param [in] num Number of bytes to copy.
     /// @return `destination` is returned upon completion.
     void* parutilMemoryCopy(void* destination, const void* source, size_t num);
-    
+
     /// Sets `num` bytes of memory at `buffer` to the value specified by `value`.
     /// Intended to be a drop-in replacement for the standard `memset()` function.
     /// If called from within a Spindle parallelized region, every thread in the same task must invoke this function with the same arguments.
+    /// If not, uses all available hardware threads on the NUMA node of the destination buffer.
     /// Reverts to standard `memset()` if `num` is small enough.
     /// @param [in] buffer Target memory buffer.
     /// @param [in] value Byte-sized value to write to the target memory buffer.
     /// @param [in] num Number of bytes to initialize.
     /// @return `buffer` is returned upon completion.
     void* parutilMemorySet(void* buffer, uint8_t value, size_t num);
+    
+    
+    // -------- SCHEDULER -------------------------------------------------- //
     
     /// Uses a static scheduler of the specified type to provide the caller with information on assigned work.
     /// Intended to be called within a Spindle parallelized region and will fail otherwise.

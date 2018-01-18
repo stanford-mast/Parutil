@@ -37,12 +37,18 @@
     <ClCompile Include="source\memory.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\version.c">
+    <ClCompile Include="source\scheduler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="source\memory.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="source\atomic.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="source\scheduler.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>

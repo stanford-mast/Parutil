@@ -50,8 +50,8 @@ parutilSchedulerStaticChunkedInternal       PROC PUBLIC
     push                    r13
     
     ; Set aside the original parameters.
-    mov                     r12,                    r_param2
-    mov                     r13,                    r_param1
+    mov                     r12,                    r64_param2
+    mov                     r13,                    r64_param1
     
     ; Get scheduling information and write it to the output data structure.
     parutilSchedulerInitStaticChunk

@@ -21,10 +21,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\memory.c" />
-    <ClCompile Include="source\version.c" />
+    <ClCompile Include="source\scheduler.c" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="source\atomic.asm" />
     <MASM Include="source\memory.asm" />
+    <MASM Include="source\scheduler.asm" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{04148694-9D3A-4902-A609-686056684060}</ProjectGuid>
