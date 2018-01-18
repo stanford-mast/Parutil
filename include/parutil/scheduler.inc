@@ -10,11 +10,11 @@
 ;   Macros for implementing various types of thread scheduling mechanisms.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-INCLUDE registers.inc
+IFNDEF __PARUTIL_SCHEDULER_INC
+__PARUTIL_SCHEDULER_INC EQU 1
+
+
 INCLUDE spindle.inc
-
-
-_TEXT                                       SEGMENT
 
 
 ; --------- MACROS ------------------------------------------------------------
@@ -22,12 +22,13 @@ _TEXT                                       SEGMENT
 ; Implements a static chunked scheduler.
 ; Given a total number of units of work, divides evenly by the number of threads in the Spindle task.
 ; Assigns one chunk to each thread, and takes care of load balancing in case of an uneven division.
-; Clobbers: rax, rbx, rcx, rdx
+; Clobbers: rax, rcx, rdx
 ; Parameters:
 ;    - r13 holds the number of units of work
 ; Returns:
 ;    - rsi holds the first iteration index
 ;    - rdi holds the last iteration index
+;    - rbx holds the increment
 parutilSchedulerInitStaticChunk            MACRO
     ; Extract thread information to determine chunk parameters and assign chunks to each thread round-robin.
     ; Formulas:
@@ -68,4 +69,10 @@ parutilSchedulerInitStaticChunk            MACRO
     mul                     rcx
     add                     rsi,                    rax
     add                     rdi,                    rsi
+    
+    ; In this type of scheduler, increment is 1.
+    mov                     rbx,                    0000000000000001h
 ENDM
+
+
+ENDIF ; __PARUTIL_SCHEDULER_INC

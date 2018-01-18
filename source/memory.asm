@@ -21,7 +21,7 @@ _TEXT                                       SEGMENT
 ; --------- FUNCTIONS ---------------------------------------------------------
 ; See "memory.h" for documentation.
 
-parutilMemoryCopyAlignedThread             PROC PUBLIC
+parutilMemoryCopyAlignedThread              PROC PUBLIC
     ; Save non-volatile registers.
     push                    rbx
     push                    rsi
@@ -68,11 +68,11 @@ parutilMemoryCopyAlignedThread             PROC PUBLIC
     pop                     rbx
 
     ret
-parutilMemoryCopyAlignedThread             ENDP
+parutilMemoryCopyAlignedThread              ENDP
 
 ; ---------
 
-parutilMemoryCopyUnalignedThread           PROC PUBLIC
+parutilMemoryCopyUnalignedThread            PROC PUBLIC
     ; Save non-volatile registers.
     push                    rbx
     push                    rsi
@@ -119,11 +119,11 @@ parutilMemoryCopyUnalignedThread           PROC PUBLIC
     pop                     rbx
 
     ret
-parutilMemoryCopyUnalignedThread           ENDP
+parutilMemoryCopyUnalignedThread            ENDP
 
 ; ---------
 
-parutilMemorySetAlignedThread              PROC PUBLIC
+parutilMemorySetAlignedThread               PROC PUBLIC
     ; Save non-volatile registers.
     push                    rbx
     push                    rsi
@@ -172,7 +172,7 @@ parutilMemorySetAlignedThread              PROC PUBLIC
     pop                     rbx
 
     ret
-parutilMemorySetAlignedThread              ENDP
+parutilMemorySetAlignedThread               ENDP
 
 
 _TEXT                                       ENDS

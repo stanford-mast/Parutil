@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -24,6 +25,24 @@
 /// - Version 1: Initial release.
 /// - Version 2: Change semantics to allow invocation from within a Spindle parallelized region.
 #define PARUTIL_LIBRARY_VERSION                 0x00000002
+
+
+// -------- TYPE DEFINITIONS ----------------------------------------------- //
+
+/// Communicates static schedule information to applications that use Parutil's scheduling assistance functionality.
+typedef struct SParutilStaticSchedule
+{
+    uint64_t startUnit;                                                     ///< First unit of work assigned to the current thread.
+    uint64_t endUnit;                                                       ///< One-past-last unit of work assigned to the current thread.
+    uint64_t increment;                                                     ///< Number of units of work between units of work assigned to the current thread.
+} SParutilStaticSchedule;
+
+/// Enumerates the different types of static schedulers Parutil implements.
+/// Used along with scheduling assistance functions to identify which type of static scheduler to use.
+typedef enum EParutilStaticScheduler
+{
+    ParutilStaticSchedulerChunked,                                          ///< Chunked scheduler, which creates one continuous chunk of work per thread.
+} EParutilStaticScheduler;
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
@@ -55,7 +74,18 @@ extern "C" {
     /// @param [in] num Number of bytes to initialize.
     /// @return `buffer` is returned upon completion.
     void* parutilMemorySet(void* buffer, uint8_t value, size_t num);
-
+    
+    /// Uses a static scheduler of the specified type to provide the caller with information on assigned work.
+    /// Intended to be called within a Spindle parallelized region and will fail otherwise.
+    /// Each thread within a Spindle task should call this function.
+    /// The information provided via the output #SParutilStaticSchedule can be used to determine which units of parallel work should be performed by each thread.
+    /// For example, when parallelizing a `for` loop, the thread could start with `startUnit`, compare for less-than with `endUnit`, and increment by `increment`.
+    /// @param [in] type Type of static scheduler to use.
+    /// @param [in] units Total number of units of work that need to be scheduled.
+    /// @param [out] schedule Scheduling information, provided as output.
+    /// @return `true` if successful (i.e. in a parallel region, output parameter is not `NULL`, and so on), `false` otherwise.
+    bool parutilSchedulerStatic(const EParutilStaticScheduler type, const uint64_t units, SParutilStaticSchedule* const schedule);
+    
 #ifdef __cplusplus
 }
 #endif
