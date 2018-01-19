@@ -138,6 +138,6 @@ void parutilSchedulerDynamicExit(void* schedule)
     spindleBarrierLocal();
 
     // First thread frees the previously-allocated dynamic scheduler object.
-    if (0 == spindleGetLocalThreadID)
+    if (0 == spindleGetLocalThreadID())
         siloFree(schedule);
 }
