@@ -171,6 +171,13 @@ bool parutilSchedulerStatic(const EParutilStaticScheduler type, const uint64_t u
 /// @return First unit of work to be performed by the caller, or `UINT64_MAX` if no work is available.
 uint64_t parutilSchedulerDynamicInit(const uint64_t numUnits, void** schedule);
 
+/// Resets a dynamic scheduler back to a state as if it has not yet assigned any work.
+/// Intended to be called within a Spindle parallelized region and will fail otherwise.
+/// Each thread within a Spindle task should call this function with the same value as received back from #parutilSchedulerDynamicInit.
+/// @param [in] Handle used to identify the dynamic scheduler instance.
+/// @return First unit of work to be performed by the caller, or `UINT64_MAX` if no work is available.
+uint64_t parutilSchedulerDynamicReset(void* schedule);
+
 /// Obtains the next unit of work to be assigned to the calling thread.
 /// Intended to be called within a Spindle parallelized region and will fail otherwise.
 /// Threads within a Spindle task should call this function with the same value as received back from #parutilSchedulerDynamicInit.

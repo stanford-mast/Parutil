@@ -110,6 +110,32 @@ uint64_t parutilSchedulerDynamicInit(const uint64_t numUnits, void** schedule)
 
 // --------
 
+uint64_t parutilSchedulerDynamicReset(void* schedule)
+{
+    if (spindleIsInParallelRegion())
+    {
+        SParutilDynamicSchedule* scheduleBuf = (SParutilDynamicSchedule*)schedule;
+        
+        spindleBarrierLocal();
+        
+        // First thread resets the work unit counter.
+        if (0 == spindleGetLocalThreadID())
+            scheduleBuf->currentUnit = (uint64_t)spindleGetLocalThreadCount();
+        
+        // First unit of work is just the current thread's local identifier.
+        const uint64_t firstWorkUnit = (uint64_t)spindleGetLocalThreadID();
+
+        if (firstWorkUnit < scheduleBuf->numUnits)
+            return firstWorkUnit;
+        else
+            return UINT64_MAX;
+    }
+    else
+        return UINT64_MAX;
+}
+
+// --------
+
 uint64_t parutilSchedulerDynamicGetWork(void* schedule)
 {
     // Check pre-conditions for this function.
