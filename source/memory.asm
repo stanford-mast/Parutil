@@ -156,12 +156,12 @@ parutilMemoryFilterAlignedThread            PROC PUBLIC
     
     ; Perform the memory-set operation.
     ; Since there is no locality at all, use non-temporal hints.
-    vmovdqa                 ymm0,                   YMMWORD PTR [r11+rcx]
-    vmovdqa                 ymm1,                   YMMWORD PTR [r11+rcx+32]
+    vmovntdqa               ymm0,                   YMMWORD PTR [r11+rcx]
+    vmovntdqa               ymm1,                   YMMWORD PTR [r11+rcx+32]
     vpand                   ymm0,                   ymm0,                   ymm2
     vpand                   ymm1,                   ymm1,                   ymm2
-    vmovdqa                 YMMWORD PTR [r11+rcx],                          ymm0
-    vmovdqa                 YMMWORD PTR [r11+rcx+32],                       ymm1
+    vmovntdq                YMMWORD PTR [r11+rcx],                          ymm0
+    vmovntdq                YMMWORD PTR [r11+rcx+32],                       ymm1
     
     add                     rsi,                    1
     jmp                     parutilMemoryFilterAlignedThreadLoop
