@@ -137,6 +137,16 @@ uint64_t parutilAtomicExchangeAdd64(uint64_t* const ptr, const uint64_t incr);
 /// @return `destination` is returned upon completion.
 void* parutilMemoryCopy(void* destination, const void* source, size_t num);
 
+/// Filters `num` bytes of memory at `buffer` by performing bitwise-and with the value specified by `value`.
+/// If called from within a Spindle parallelized region, every thread in the same task must invoke this function with the same arguments.
+/// If not, uses all available hardware threads on the NUMA node of the destination buffer.
+/// Reverts to standard `memset()` if `num` is small enough.
+/// @param [in] buffer Target memory buffer.
+/// @param [in] value Byte-sized value to write to the target memory buffer.
+/// @param [in] num Number of bytes to filter.
+/// @return `buffer` is returned upon completion.
+void* parutilMemoryFilter(void* buffer, uint8_t value, size_t num);
+
 /// Sets `num` bytes of memory at `buffer` to the value specified by `value`.
 /// Intended to be a drop-in replacement for the standard `memset()` function.
 /// If called from within a Spindle parallelized region, every thread in the same task must invoke this function with the same arguments.

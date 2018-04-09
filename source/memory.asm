@@ -55,7 +55,7 @@ parutilMemoryCopyAlignedThread              PROC PUBLIC
     vmovntdq                YMMWORD PTR [r11+rcx],                          ymm0
     vmovntdq                YMMWORD PTR [r11+rcx+32],                       ymm1
     
-    inc                     rsi
+    add                     rsi,                    1
     jmp                     parutilMemoryCopyAlignedThreadLoop
   parutilMemoryCopyAlignedThreadDone:
     
@@ -106,7 +106,7 @@ parutilMemoryCopyUnalignedThread            PROC PUBLIC
     mov                     rax,                    QWORD PTR [r12+rcx]
     movnti                  QWORD PTR [r11+rcx],    rax
     
-    inc                     rsi
+    add                     rsi,                    1
     jmp                     parutilMemoryCopyUnalignedThreadLoop
   parutilMemoryCopyUnalignedThreadDone:
     
@@ -120,6 +120,63 @@ parutilMemoryCopyUnalignedThread            PROC PUBLIC
 
     ret
 parutilMemoryCopyUnalignedThread            ENDP
+
+; ---------
+
+parutilMemoryFilterAlignedThread            PROC PUBLIC
+    ; Save non-volatile registers.
+    push                    rbx
+    push                    rsi
+    push                    rdi
+    push                    r11
+    push                    r12
+    push                    r13
+    
+    ; Set aside the original parameters.
+    mov                     r11,                    r64_param1
+    mov                     r12,                    r64_param2
+    mov                     r13,                    r64_param3
+    
+    ; Initialize.
+    parutilSchedulerInitStaticChunk
+    
+    ; Create the 256-bit value to be filtered with memory.
+    vmovq                   xmm0,                   r12
+    vpbroadcastq            ymm2,                   xmm0
+    
+    ; Perform the memory copy operation assigned to this thread.
+  parutilMemoryFilterAlignedThreadLoop:
+    cmp                     rsi,                    rdi
+    jge                     parutilMemoryFilterAlignedThreadDone
+    
+    ; Compute the byte offset of the 64-byte block.
+    ; This is equal to the iteration index multiplied by 64, or left-shifted by 6.
+    mov                     rcx,                    rsi
+    shl                     rcx,                    6
+    
+    ; Perform the memory-set operation.
+    ; Since there is no locality at all, use non-temporal hints.
+    vmovdqa                 ymm0,                   YMMWORD PTR [r11+rcx]
+    vmovdqa                 ymm1,                   YMMWORD PTR [r11+rcx+32]
+    vpand                   ymm0,                   ymm0,                   ymm2
+    vpand                   ymm1,                   ymm1,                   ymm2
+    vmovdqa                 YMMWORD PTR [r11+rcx],                          ymm0
+    vmovdqa                 YMMWORD PTR [r11+rcx+32],                       ymm1
+    
+    add                     rsi,                    1
+    jmp                     parutilMemoryFilterAlignedThreadLoop
+  parutilMemoryFilterAlignedThreadDone:
+    
+    ; Restore non-volatile registers and return.
+    pop                     r13
+    pop                     r12
+    pop                     r11
+    pop                     rdi
+    pop                     rsi
+    pop                     rbx
+
+    ret
+parutilMemoryFilterAlignedThread            ENDP
 
 ; ---------
 
@@ -159,7 +216,7 @@ parutilMemorySetAlignedThread               PROC PUBLIC
     vmovntdq                YMMWORD PTR [r11+rcx],                          ymm1
     vmovntdq                YMMWORD PTR [r11+rcx+32],                       ymm1
     
-    inc                     rsi
+    add                     rsi,                    1
     jmp                     parutilMemorySetAlignedThreadLoop
   parutilMemorySetAlignedThreadDone:
     

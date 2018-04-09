@@ -58,6 +58,16 @@ static void parutilMemoryCopyInternalThread(void* arg)
     }
 }
 
+/// Internal control function for memory filtering operations.
+/// @param [in] arg Pointer to the #SParutilMemoryOperationSpec structure that contains information about the overall memory filtering operation to be parallelized.
+static void parutilMemoryFilterInternalThread(void* arg)
+{
+    SParutilMemoryOperationSpec* memoryOpSpec = (SParutilMemoryOperationSpec*)arg;
+    
+    // Alignment is ensured by the calling function.
+    parutilMemoryFilterAlignedThread(memoryOpSpec->destination, memoryOpSpec->value, memoryOpSpec->num64);
+}
+
 /// Internal control function for memory initialization operations.
 /// @param [in] arg Pointer to the #SParutilMemoryOperationSpec structure that contains information about the overall memory initialization operation to be parallelized.
 static void parutilMemorySetInternalThread(void* arg)
@@ -147,6 +157,91 @@ void* parutilMemoryCopy(void* destination, const void* source, size_t num)
         }
         
         return destination;
+    }
+}
+
+// --------
+
+void* parutilMemoryFilter(void* buffer, uint8_t value, size_t num)
+{
+    if (num < (kParutilMinimumOperationSize))
+    {
+        // For small enough buffers, it is not worth the overhead of setting up threads to parallelize.
+        if ((!spindleIsInParallelRegion()) || (0 == spindleGetLocalThreadID()))
+        {
+            for (size_t i = 0; i < num; ++i)
+                ((uint8_t*)buffer)[i] &= value;
+        }
+        
+        return buffer;
+    }
+    else
+    {
+        SParutilMemoryOperationSpec memoryOpSpec;
+        size_t numUnalignedBytes;
+        
+        // Steer the implementation towards 64-byte alignment.
+        // The underlying memory copy implementation uses 256-bit (32-byte) AVX instructions in groups of 2, for an effective block size of 512 bits (64 bytes).
+        // Correct for buffer mis-alignment here.
+        numUnalignedBytes = 64 - (((size_t)buffer) & 63);
+        
+        if ((0 != numUnalignedBytes))
+        {
+            if ((!spindleIsInParallelRegion()) || (0 == spindleGetLocalThreadID()))
+            {
+                for (size_t i = 0; i < numUnalignedBytes; ++i)
+                    ((uint8_t*)buffer)[i] &= value;
+            }
+            
+            buffer = (void*)((size_t)buffer + numUnalignedBytes);
+            num -= numUnalignedBytes;
+        }
+        
+        // Ensure the actual parallelized implementation is invoked with a multiple of 64 blocks, and perform any needed tail-end correction here.
+        // Corrections are done at the tail end to ensure preservation of array base address alignment.
+        numUnalignedBytes = (num & 63);
+
+        if ((!spindleIsInParallelRegion()) || (0 == spindleGetLocalThreadID()))
+        {
+            for (size_t i = 0; i < numUnalignedBytes; ++i)
+                ((uint8_t*)buffer)[num - i - 1] &= value;
+        }
+
+        // Set up control information for the memory set operation.
+        memoryOpSpec.destination = buffer;
+        memoryOpSpec.source = NULL;
+        memoryOpSpec.value = (uint64_t)value;
+        memoryOpSpec.value |= memoryOpSpec.value << 32ull;
+        memoryOpSpec.value |= memoryOpSpec.value << 16ull;
+        memoryOpSpec.value |= memoryOpSpec.value << 8ull;
+        memoryOpSpec.num64 = num >> 6;
+
+        if (spindleIsInParallelRegion())
+        {
+            spindleBarrierLocal();
+            parutilMemoryFilterInternalThread((void*)&memoryOpSpec);
+        }
+        else
+        {
+            SSpindleTaskSpec taskSpec;
+            int32_t targetNUMANode = siloGetNUMANodeForVirtualAddress(buffer);
+            
+            // Set up control information for Spindle.
+            if (0 > targetNUMANode)
+                targetNUMANode = 0;
+            
+            taskSpec.func = &parutilMemoryFilterInternalThread;
+            taskSpec.arg = (void*)&memoryOpSpec;
+            taskSpec.numaNode = targetNUMANode;
+            taskSpec.numThreads = 0;
+            taskSpec.smtPolicy = SpindleSMTPolicyPreferPhysical;
+            
+            // Dispatch the memory set operation.
+            if (0 != spindleThreadsSpawn(&taskSpec, 1, false))
+                return NULL;
+        }
+
+        return buffer;
     }
 }
 
