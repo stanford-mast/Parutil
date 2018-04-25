@@ -15,13 +15,12 @@
 #include <silo.h>
 #include <spindle.h>
 #include <stdint.h>
-#include <string.h>
 
 
 // -------- CONSTANTS ------------------------------------------------------ //
 
 /// Minimum size of a memory operation, in bytes, before Parutil will parallelize it.
-static const size_t kParutilMinimumOperationSize = 4ull * 1024ull * 1024ull;
+static const size_t kParutilMinimumOperationSize = 4ull * 1024ull;
 
 
 // -------- TYPE DEFINITIONS ----------------------------------------------- //
@@ -88,9 +87,12 @@ void* parutilMemoryCopy(void* destination, const void* source, size_t num)
     {
         // For small enough buffers, it is not worth the overhead of setting up threads to parallelize.
         if ((!spindleIsInParallelRegion()) || (0 == spindleGetLocalThreadID()))
-            return memcpy(destination, source, num);
-        else
-            return destination;
+        {
+            for (size_t i = 0; i < num; ++i)
+                ((uint8_t*)destination)[i] = ((uint8_t*)source)[i];
+        }
+        
+        return destination;
     }
     else
     {
@@ -253,9 +255,12 @@ void* parutilMemorySet(void* buffer, uint8_t value, size_t num)
     {
         // For small enough buffers, it is not worth the overhead of setting up threads to parallelize.
         if ((!spindleIsInParallelRegion()) || (0 == spindleGetLocalThreadID()))
-            return memset(buffer, (int)value, num);
-        else
-            return buffer;
+        {
+            for (size_t i = 0; i < num; ++i)
+                ((uint8_t*)buffer)[i] = value;
+        }
+        
+        return buffer;
     }
     else
     {
